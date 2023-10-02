@@ -7,6 +7,7 @@ GRAFANA_PORT_FORWARD ?= 3000
 .PHONY: install
 install:
 	make -C ./support/observability install
+	kubectl apply -f ./support/mockserver
 
 .PHONY: port-forward-jaeger
 port-forward-jaeger:
@@ -30,7 +31,11 @@ deploy-app-v1:
 
 .PHONY: trigger-analysis
 trigger-analysis:
-	kubectl delete -f ./sample-app/analysis-instance/analysis.yaml && kubectl apply -f ./sample-app/analysis-instance/analysis.yaml
+	kubectl delete -f ./sample-app/analysis-instance/analysis.yaml --ignore-not-found=true && kubectl apply -f ./sample-app/analysis-instance/analysis.yaml
+
+.PHONY: get-analysis-result
+get-analysis-result:
+	kubectl get analyses frontend-analysis -n podtato-kubectl -o=jsonpath='{.status.raw}' | jq .
 
 .PHONY: undeploy-podtatohead
 undeploy-podtatohead:

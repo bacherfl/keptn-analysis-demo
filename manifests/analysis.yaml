@@ -46,7 +46,7 @@ metadata:
 spec:
   provider:
     name: dql-provider
-  query: 'timeseries from:-10d, usage=avg(dt.host.cpu.usage), bins: 1'
+  query: 'timeseries from:-10d,usage=avg(dt.host.cpu.usage),default:0.0, bins: 1'
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: AnalysisDefinition
@@ -72,6 +72,14 @@ spec:
         failure:
           greaterThan:
             fixedValue: 0
+      weight: 1
+      keyObjective: true
+    - analysisValueTemplateRef:
+        name: cpu-usage
+      target:
+        failure:
+          greaterThan:
+            fixedValue: 50
       weight: 1
       keyObjective: true
   totalScore:
