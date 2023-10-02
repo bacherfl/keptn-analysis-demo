@@ -1,0 +1,12 @@
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: Analysis
+metadata:
+  name: frontend-analysis
+  namespace: podtato-kubectl
+spec:
+  timeframe:
+    recent: 10m
+  args:
+    "workload": "podtato-head-frontend"
+  analysisDefinition:
+    name: my-analysis-definition

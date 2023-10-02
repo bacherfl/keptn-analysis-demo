@@ -1,0 +1,29 @@
+apiVersion: lifecycle.keptn.sh/v1alpha3
+kind: KeptnTaskDefinition
+metadata:
+  name: post-deployment-loadtests
+  namespace: podtato-kubectl
+spec:
+  container:
+    name: loadtest
+    image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
+    env:
+      - name: URL
+        value: http://podtato-head-frontend.podtato-kubectl:8080
+      - name: WAIT_TIME_BETWEEN_REQUESTS_MS
+        value: "200"
+---
+apiVersion: lifecycle.keptn.sh/v1alpha3
+kind: KeptnTaskDefinition
+metadata:
+  name: wait-for-monitoring
+  namespace: podtato-kubectl
+spec:
+  container:
+    name: wait-for-monitoring
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
+    env:
+      - name: PROMETHEUS_URL
+        value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
+      - name: TARGET_SERVICE_LABEL
+        value: "podtato-head-frontend"

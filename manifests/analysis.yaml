@@ -1,0 +1,58 @@
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: KeptnMetricsProvider
+metadata:
+  name: my-provider
+  namespace: podtato-kubectl
+spec:
+  type: prometheus
+  targetServer: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
+---
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: response-time-p95
+  namespace: podtato-kubectl
+spec:
+  provider:
+    name: my-provider
+  query: 'histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job="{{.workload}}"}[1m])))'
+---
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: error-rate
+  namespace: podtato-kubectl
+spec:
+  provider:
+    name: my-provider
+  query: 'rate(http_requests_total{status_code="500", job="{{.workload}}"}[1m]) or on() vector(0)'
+---
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisDefinition
+metadata:
+  name: my-analysis-definition
+  namespace: podtato-kubectl
+spec:
+  objectives:
+    - analysisValueTemplateRef:
+        name: response-time-p95
+      target:
+        failure:
+          greaterThan:
+            fixedValue: 500m
+        warning:
+          greaterThan:
+            fixedValue: 300m
+      weight: 1
+      keyObjective: false
+    - analysisValueTemplateRef:
+        name: error-rate
+      target:
+        failure:
+          greaterThan:
+            fixedValue: 0
+      weight: 1
+      keyObjective: true
+  totalScore:
+    passPercentage: 60
+    warningPercentage: 50

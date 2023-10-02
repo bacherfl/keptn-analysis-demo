@@ -1,0 +1,6 @@
+bases:
+  - ../base
+
+patchesStrategicMerge:
+  - app.yaml
+  - manifest.yaml
