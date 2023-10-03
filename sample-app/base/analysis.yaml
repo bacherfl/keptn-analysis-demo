@@ -76,14 +76,14 @@ spec:
             fixedValue: 0
       weight: 1
       keyObjective: true
-    - analysisValueTemplateRef:
-        name: cpu-usage
-      target:
-        failure:
-          greaterThan:
-            fixedValue: 50
-      weight: 1
-      keyObjective: true
+    #- analysisValueTemplateRef:
+    #    name: cpu-usage
+    #  target:
+    #    failure:
+    #      greaterThan:
+    #        fixedValue: 50
+    #  weight: 1
+    #  keyObjective: true
   totalScore:
     passPercentage: 60
     warningPercentage: 50

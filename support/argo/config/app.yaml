@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/keptn-sandbox/keptn-lifecycle-toolkit-examples
+    repoURL: https://github.com/bacherfl/keptn-analysis-demo
     targetRevision: main
-    path: sample-app/version-2
+    path: sample-app/manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: podtato-kubectl
