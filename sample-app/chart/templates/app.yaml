@@ -205,7 +205,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        image: ghcr.io/podtato-head/entry:latest
+        image: ghcr.io/podtato-head/podtatoserver:v{{ .Values.frontend.serviceVersion }}
         #args:
         #  - "--version"
         #  - "{{ .Values.frontend.serviceVersion }}"
