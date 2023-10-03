@@ -8,19 +8,6 @@ spec:
   targetServer: "http://prometheus-k8s.monitoring.svc.cluster.local:9090"
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
-kind: KeptnMetricsProvider
-metadata:
-  name: dql-provider
-  namespace: podtato-kubectl
-spec:
-  type: dql
-  secretKeyRef:
-    key: CLIENT_SECRET
-    name: dt-third-gen-secret-test-tenant
-  # targetServer: https://vcj06490.dev.apps.dynatracelabs.com
-  targetServer: http://mockserver.mockserver.svc.cluster.local:1080
----
-apiVersion: metrics.keptn.sh/v1alpha3
 kind: AnalysisValueTemplate
 metadata:
   name: response-time-p95
@@ -76,14 +63,6 @@ spec:
             fixedValue: 0
       weight: 1
       keyObjective: true
-    #- analysisValueTemplateRef:
-    #    name: cpu-usage
-    #  target:
-    #    failure:
-    #      greaterThan:
-    #        fixedValue: 50
-    #  weight: 1
-    #  keyObjective: true
   totalScore:
     passPercentage: 60
     warningPercentage: 50
