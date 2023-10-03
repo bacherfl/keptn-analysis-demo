@@ -206,6 +206,9 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         image: ghcr.io/podtato-head/entry:{{ .Values.frontend.serviceVersion }}
+        args:
+          - "--version"
+          - "0.1.2"
         livenessProbe:
           httpGet:
             path: /healthz
