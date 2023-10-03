@@ -213,7 +213,7 @@ spec:
         name: podtato-head-frontend
         args:
           - "--version"
-          - "{{ .Values.frontend.serviceVersion }}"
+          - {{ .Values.frontend.serviceVersion }}
         ports:
         - containerPort: 8080
           name: http
