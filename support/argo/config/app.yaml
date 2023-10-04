@@ -1,12 +1,18 @@
-project: default
-source:
-  repoURL: 'https://github.com/bacherfl/keptn-analysis-demo'
-  path: simple-app/chart
-  targetRevision: HEAD
-destination:
-  server: 'https://kubernetes.default.svc'
-  namespace: simple-go
-syncPolicy:
-  automated:
-    prune: true
-    selfHeal: true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-go
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/bacherfl/keptn-analysis-demo'
+    path: simple-app/chart
+    targetRevision: HEAD
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: simple-go
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
