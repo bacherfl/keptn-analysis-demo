@@ -1,7 +1,7 @@
 # renovate: datasource=github-tags depName=jaegertracing/jaeger
 JAEGER_VERSION ?= v1.49.0
 LFC_NAMESPACE ?= keptn-lifecycle-controller-system
-PODTATO_NAMESPACE ?= podtato-kubectl
+PODTATO_NAMESPACE ?= simple-go
 GRAFANA_PORT_FORWARD ?= 3000
 
 .PHONY: install
@@ -52,17 +52,17 @@ argo-install-simple-go:
 
 .PHONY: trigger-analysis
 trigger-analysis:
-	kubectl delete -f ./sample-app/analysis-instance/analysis.yaml --ignore-not-found=true && kubectl apply -f ./sample-app/analysis-instance/analysis.yaml
+	kubectl delete -f ./simple-app/analysis-instance/analysis.yaml --ignore-not-found=true && kubectl apply -f ./simple-app/analysis-instance/analysis.yaml
 
 .PHONY: get-analysis-result
 get-analysis-result:
-	kubectl get analyses frontend-analysis -n podtato-kubectl -o=jsonpath='{.status.raw}' | jq .
+	kubectl get analyses service-analysis -n simple-go -o=jsonpath='{.status.raw}' | jq .
 
-.PHONY: undeploy-podtatohead
-undeploy-podtatohead:
-	make -C ./sample-app undeploy-podtatohead
+.PHONY: undeploy
+undeploy:
+	kubectl delete namespace simple-go
 
 .PHONY: uninstall
-uninstall: undeploy-podtatohead
+uninstall: undeploy
 	make -C ../support/observability uninstall
 

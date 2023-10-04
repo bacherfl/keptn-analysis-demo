@@ -22,17 +22,10 @@ function KeptnAppVersionList() {
 
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        Kubernetes KeptnAppVersions
-      </Typography>
-      <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
         {KeptnAppVersions.map((KeptnAppVersion) => (
           <Grid container item spacing={3} class="deployment-item">
               <Card sx={{ minWidth: 275 }}>
                 <CardContent>
-                  <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                    Word of the Day
-                  </Typography>
                   <Typography variant="h5" component="div">
                     {KeptnAppVersion.metadata.name}
                   </Typography>
@@ -53,7 +46,6 @@ function KeptnAppVersionList() {
               </Card>
             </Grid>
             ))}
-      </Grid>
     </div>
   );
 }

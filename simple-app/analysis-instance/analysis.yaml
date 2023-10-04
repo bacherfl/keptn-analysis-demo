@@ -1,12 +1,12 @@
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: Analysis
 metadata:
-  name: frontend-analysis
-  namespace: podtato-kubectl
+  name: service-analysis
+  namespace: simple-go
 spec:
   timeframe:
     recent: 10m
   args:
-    "workload": "podtato-head-frontend"
+    "workload": "simple-go-service"
   analysisDefinition:
     name: my-analysis-definition
