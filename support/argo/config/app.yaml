@@ -1,11 +1,11 @@
 project: default
 source:
   repoURL: 'https://github.com/bacherfl/keptn-analysis-demo'
-  path: sample-app/chart
+  path: simple-app/chart
   targetRevision: HEAD
 destination:
   server: 'https://kubernetes.default.svc'
-  namespace: podtato-kubectl
+  namespace: simple-go
 syncPolicy:
   automated:
     prune: true

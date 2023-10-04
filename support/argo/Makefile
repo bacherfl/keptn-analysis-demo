@@ -50,8 +50,8 @@ port-forward-argocd:
 	@echo ""
 	kubectl port-forward svc/argocd-server -n "$(ARGO_NAMESPACE)" 8080:443
 
-.PHONY: argo-install-podtatohead
-argo-install-podtatohead:
+.PHONY: argo-install-simple-go
+argo-install-simple-go:
 	@echo ""
 	kubectl apply -f config/app.yaml -n "$(ARGO_NAMESPACE)" 
 

@@ -46,9 +46,9 @@ deploy-app:
 deploy-app-v1:
 	make -C ./sample-app deploy-version-1
 
-.PHONY: argo-install-podtatohead
-argo-install-podtatohead:
-	make -C ./support/argo argo-install-podtatohead
+.PHONY: argo-install-simple-go
+argo-install-simple-go:
+	make -C ./support/argo argo-install-simple-go
 
 .PHONY: trigger-analysis
 trigger-analysis:
