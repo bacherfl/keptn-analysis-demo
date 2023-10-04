@@ -609,7 +609,7 @@ metadata:
 spec:
   provider:
     name: my-provider
-  query: {{ printf 'histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job="{{.workload}}"}[1m])))' }}
+  query: {{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: KeptnMetricsProvider
