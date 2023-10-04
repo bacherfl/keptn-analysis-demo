@@ -75,6 +75,7 @@ spec:
   ports:
   - name: http
     port: 8080
+    targetPort: 9000
     protocol: TCP
   selector:
     app: simple-go-service
@@ -102,7 +103,7 @@ spec:
       - image: bacherfl/simple-go-service:{{ .Values.serviceVersion }}
         name: simple-go-service
         ports:
-        - containerPort: 8080
+        - containerPort: 9000
           name: http
           protocol: TCP
 ---
