@@ -26,17 +26,23 @@ function KeptnAppVersionDetail() {
     const [analysisTriggered, setAnalysisTriggered] = useState(false);
     const [activeAnalysis, setActiveAnalysis] = useState({});
     const [analysisResults, setAnalysisResults] = useState({});
+    const [activeTask, setActiveTask] = useState({});
 
-    const handleOpen = () => setOpen(true);
+    function handleAnalyseTest(task) {
+      setOpen(true);
+      setActiveTask(task)
+    }
+
     const handleClose = () => setOpen(false);
+
     async function startAnalysis(e) {
       console.log("triggering analysis for " + analysisWorkload);
       setAnalysisTriggered(true);
       try {
         const response = await axios.post('/api/analysis', {
           timeframe: {
-            from: "2023-10-04T10:22:54Z",
-            to: "2023-10-04T10:24:04Z"
+            from: activeTask.startTime,
+            to: activeTask.endTime
           },
           workloadName: analysisWorkload
         });
@@ -94,7 +100,7 @@ function KeptnAppVersionDetail() {
     }, [id]);
   
     return (
-      <Paper>
+      <Box>
         <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
           <Box sx={{ my: 3, mx: 2 }}>
             <Grid container alignItems="center">
@@ -168,7 +174,7 @@ function KeptnAppVersionDetail() {
                       <TableCell align="right">{row.status}</TableCell>
                       <TableCell align="right">{row.startTime}</TableCell>
                       <TableCell align="right">{row.endTime}</TableCell>
-                      <TableCell align="right"><Button onClick={handleOpen}>Analyse</Button></TableCell>
+                      <TableCell align="right"><Button onClick={() => handleAnalyseTest(row)}>Analyse</Button></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -183,9 +189,9 @@ function KeptnAppVersionDetail() {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={style}>
+          <Box sx={{...style, width: 800}}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
-              Analyse Tests
+              Analyse: {activeTask.name}
             </Typography>
             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
               Select the workload to analyse
@@ -224,7 +230,7 @@ function KeptnAppVersionDetail() {
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Analysis: {activeAnalysis?.metadata?.name} - {activeAnalysis?.status?.state}
               </Typography>
-              { analysisResults !== undefined ? 
+              { analysisResults !== undefined && activeAnalysis?.status?.state === "Completed" ? 
                 <Card variant="outlined">
                 <CardContent>
                   <Typography variant="h6" component="div">
@@ -259,7 +265,7 @@ function KeptnAppVersionDetail() {
                     ))}
                   </List>
                   <Typography variant="h6" component="div">
-                    Total Score: {analysisResults.totalScore}
+                    Total Score: {analysisResults.totalScore} / {analysisResults.maximumScore}
                   </Typography>
                   <Typography variant="body2" color={analysisResults.pass ? 'primary' : 'error'}>
                     {analysisResults.pass ? 'Pass' : 'Fail'}
@@ -277,7 +283,7 @@ function KeptnAppVersionDetail() {
             : null }
           </Box>
         </Modal>
-      </Paper>
+      </Box>
     );
   }
   
