@@ -174,7 +174,7 @@ function KeptnAppVersionDetail() {
                       <TableCell align="right">{row.status}</TableCell>
                       <TableCell align="right">{row.startTime}</TableCell>
                       <TableCell align="right">{row.endTime}</TableCell>
-                      <TableCell align="right"><Button onClick={() => handleAnalyseTest(row)}>Analyse</Button></TableCell>
+                      <TableCell align="right">{row.status = "Succeeded" ? <Button onClick={() => handleAnalyseTest(row)}>Analyse</Button> : null}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -206,7 +206,7 @@ function KeptnAppVersionDetail() {
                 label="Workload"
                 onChange={handleAnalysisWorkloadChange}
               >
-                {KeptnAppVersion?.status?.workloadStatus.map((row) => (
+                {KeptnAppVersion?.status?.workloadStatus?.map((row) => (
                     <MenuItem value={row.workload?.name}>
                         {row.workload?.name}
                     </MenuItem>
