@@ -131,7 +131,7 @@ function KeptnAppVersionDetail() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {KeptnAppVersion?.status?.workloadStatus.map((row) => (
+                  {KeptnAppVersion?.status?.workloadStatus?.map((row) => (
                     <TableRow
                       key={row.workload?.name}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -163,7 +163,7 @@ function KeptnAppVersionDetail() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {KeptnAppVersion?.status?.postDeploymentTaskStatus.map((row) => (
+                  {KeptnAppVersion?.status?.postDeploymentTaskStatus?.map((row) => (
                     <TableRow
                       key={row.name}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
