@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Grid, Typography, Divider, Modal, FormControl, Button, InputLabel, MenuItem, Card, CardContent, List, ListItem, ListItemText } from '@mui/material';
+import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Chip, Grid, Typography, Divider, Modal, FormControl, Button, InputLabel, MenuItem, Card, CardContent, List, ListItem, ListItemText } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Select from '@mui/material/Select';
 import SaveIcon from '@mui/icons-material/Save';
@@ -21,8 +21,10 @@ const style = {
 function KeptnAppVersionDetail() {
     const { id } = useParams();
     const [KeptnAppVersion, setKeptnAppVersion] = useState([]);
+    const [AnalysisDefinitions, setAnalysisDefinitions] = useState([]);
     const [open, setOpen] = useState(false);
     const [analysisWorkload, setAnalysisWorkload] = useState('');
+    const [selectedAnalysisDefinition, setSelectedAnalysisDefinition] = useState('');
     const [analysisTriggered, setAnalysisTriggered] = useState(false);
     const [activeAnalysis, setActiveAnalysis] = useState({});
     const [analysisResults, setAnalysisResults] = useState({});
@@ -44,7 +46,8 @@ function KeptnAppVersionDetail() {
             from: activeTask.startTime,
             to: activeTask.endTime
           },
-          workloadName: analysisWorkload
+          workloadName: analysisWorkload,
+          analysisDefinition: selectedAnalysisDefinition
         });
         console.log('Analysis resource created:', response.data);
         setAnalysisTriggered(false);
@@ -84,19 +87,62 @@ function KeptnAppVersionDetail() {
     const handleAnalysisWorkloadChange = (event) => {
       setAnalysisWorkload(event.target.value);
     };
+
+    const handleSelectedAnalysisDefinitionChange = (event) => {
+      setSelectedAnalysisDefinition(event.target.value);
+    };
+
+    function getCriteria(target) {
+      if (target.greaterThan !== undefined) {
+        return `> ${target.greaterThan.fixedValue}`
+      }
+      if (target.greaterThanOrEqual !== undefined) {
+        return `>= ${target.greaterThanOrEqual.fixedValue}`
+      }
+      if (target.lessThan !== undefined) {
+        return `< ${target.lessThan.fixedValue}`
+      }
+      if (target.lessThanOrEqual !== undefined) {
+        return `> ${target.lessThanOrEqual.fixedValue}`
+      }
+      if (target.equalTo !== undefined) {
+        return `== ${target.equalTo.fixedValue}`
+      }
+      if (target.inRange !== undefined) {
+        return `>= ${target.inRange.lowBound} && <= ${target.inRange.highBound}`
+      }
+      if (target.notInRange !== undefined) {
+        return `<= ${target.notInRange.lowBound} && >= ${target.notInRange.highBound}`
+      }
+    }
+
+    function getScorePercentage(achieved, max) {
+      let value = ((achieved / max) * 100 ).toFixed(2)
+      return value
+    }
   
     useEffect(() => {
       async function fetchKeptnAppVersionDetails() {
         try {
           const response = await axios.get(`/api/keptnappversions/${id}`);
-          console.log(response.data);
           setKeptnAppVersion(response.data);
         } catch (error) {
           console.error('Error fetching KeptnAppVersion details:', error);
         }
       }
-  
+
+      async function fetchAnalysisDefinitions() {
+        try {
+          const response = await axios.get(`/api/analysisdefinitions`);
+          console.log(response.data);
+          setAnalysisDefinitions(response.data);
+        } catch (error) {
+          console.error('Error fetching AnalysisDefinitions:', error);
+        }
+      }
+      
       fetchKeptnAppVersionDetails();
+      fetchAnalysisDefinitions();
     }, [id]);
   
     return (
@@ -198,10 +244,10 @@ function KeptnAppVersionDetail() {
             </Typography>
             <Divider light />
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Workload</InputLabel>
+              <InputLabel id="select-workload">Workload</InputLabel>
               <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
+                labelId="select-workload"
+                id="select-workload"
                 value={analysisWorkload}
                 label="Workload"
                 onChange={handleAnalysisWorkloadChange}
@@ -212,8 +258,26 @@ function KeptnAppVersionDetail() {
                     </MenuItem>
                   ))}
               </Select>
+              <Divider light />
+              <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                Select an AnalysisDefinition
+              </Typography>
+              <InputLabel id="select-analysisdefinition"></InputLabel>
+              <Select
+                labelId="select-analysisdefinition"
+                id="select-analysisdefinition"
+                value={selectedAnalysisDefinition}
+                label="AnalysisDefinition"
+                onChange={handleSelectedAnalysisDefinitionChange}
+              >
+                {AnalysisDefinitions?.map((row) => (
+                    <MenuItem value={row.metadata?.name}>
+                        {row.metadata?.name}
+                    </MenuItem>
+                  ))}
+              </Select>
             </FormControl>
-            { analysisWorkload !== "" ? <Button onClick={startAnalysis}>Analyse {analysisWorkload}</Button> : null }
+            { analysisWorkload !== "" && selectedAnalysisDefinition !== "" ? <Button onClick={startAnalysis}>Analyse {analysisWorkload}</Button> : null }
 
             { analysisTriggered ?
               <Box><LoadingButton
@@ -240,7 +304,7 @@ function KeptnAppVersionDetail() {
                     {analysisResults?.objectiveResults?.map((objective, index) => (
                       <ListItem key={index}>
                         <ListItemText
-                          primary={`Objective ${index + 1}`}
+                          primary={`Objective ${index + 1}:`}
                           secondary={
                             <React.Fragment>
                               <Typography component="span" variant="body2" color="text.primary">
@@ -252,9 +316,25 @@ function KeptnAppVersionDetail() {
                               </Typography>
                               <br />
                               <Typography component="span" variant="body2" color="text.primary">
-                                Value: {objective.value}
+                                Value: {objective.value.toFixed(3)}
                               </Typography>
                               <br />
+                              { objective.objective?.target?.failure !== undefined ?
+                              <div>
+                                <Typography component="span" variant="body2" color="text.primary">
+                                  Fail Criteria: { getCriteria(objective.objective?.target?.failure) }
+                                </Typography>
+                                <br />
+                              </div>                            
+                              : null }
+                              { objective.objective?.target?.warning !== undefined ?
+                              <div>
+                                <Typography component="span" variant="body2" color="text.primary">
+                                  Warning Criteria: { getCriteria(objective.objective?.target?.warning) }
+                                </Typography>
+                                <br />
+                              </div>                            
+                              : null }
                               <Typography component="span" variant="body2" color="text.primary">
                                 Score: {objective.score}
                               </Typography>
@@ -265,10 +345,18 @@ function KeptnAppVersionDetail() {
                     ))}
                   </List>
                   <Typography variant="h6" component="div">
-                    Total Score: {analysisResults.totalScore} / {analysisResults.maximumScore}
+                    Total Score: {analysisResults.totalScore} / {analysisResults.maximumScore} ({getScorePercentage(analysisResults.totalScore, analysisResults.maximumScore)}%)
                   </Typography>
                   <Typography variant="body2" color={analysisResults.pass ? 'primary' : 'error'}>
-                    {analysisResults.pass ? 'Pass' : 'Fail'}
+                    {analysisResults.pass &&  
+                        <Chip label="Pass" color="success" variant="outlined" /> 
+                    }
+                    { !analysisResults.pass && analysisResults.warning &&  
+                        <Chip label="Warning" color="warning" variant="outlined" /> 
+                    }
+                    { !analysisResults.pass && !analysisResults.warning &&  
+                        <Chip label="Fail" color="error" variant="outlined" /> 
+                    }
                   </Typography>
                   {analysisResults.warning && (
                     <Typography variant="body2" color="warning">

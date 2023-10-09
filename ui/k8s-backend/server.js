@@ -45,6 +45,17 @@ app.get('/api/keptnappversions/:name', async (req, res) => {
   }
 })
 
+app.get('/api/analysisdefinitions', async(req, res) => {
+  try {
+    const response = await k8sCustomApi.listNamespacedCustomObject('metrics.keptn.sh','v1alpha3','simple-go', 'analysisdefinitions');
+    const keptnAppVersions = response.body.items;
+    res.json(keptnAppVersions);
+  } catch (error) {
+    console.error('Error fetching AnalysisDefinitions:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+})
+
 app.get('/api/analysis/:name', async (req, res) => {
   const { name } = req.params;
   try {
@@ -58,7 +69,6 @@ app.get('/api/analysis/:name', async (req, res) => {
 })
 
 app.post('/api/analysis', async (req, res) => {
-  console.log(req.body);
   const randomUid = crypto.randomBytes(3).toString('hex').toLowerCase(); // 6 bytes (12 characters) converted to 5-character UID
   const analysisResource = {
     apiVersion: 'metrics.keptn.sh/v1alpha3',
@@ -76,7 +86,7 @@ app.post('/api/analysis', async (req, res) => {
         workload: req.body.workloadName,
       },
       analysisDefinition: {
-        name: 'my-analysis-definition',
+        name: req.body.analysisDefinition,
       },
     },
   };
