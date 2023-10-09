@@ -78,3 +78,8 @@ When clicking on one of those, you will be redirected to the details of that `Ke
 Next to the post deployment task (the load tests) you will find an `Analyse` button, which will guide you through
 the process of triggering an Analysis. For this, you will need to select the workload and the `AnalysisDefinition`
 to be used for the analysis. An AnalysisDefinition for evaluating the response time and error rate of the deployed service is included in this demo, but can be extended as desired.
+
+Once the created Analysis is finished, the UI will display its results, containing the actual queries used
+for the retrieval of values, and the values themselves:
+
+![Analysis results](assets/analysis.png)
