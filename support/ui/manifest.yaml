@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keptn-ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keptn-demo-ui
+  namespace: keptn-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keptn-demo-ui
+  template:
+    metadata:
+      labels:
+        app: keptn-demo-ui
+    spec:
+      serviceAccountName: keptn-ui
+      containers:
+        - name: frontend
+          image: bacherfl/keptn-ui:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+        - name: backend
+          image: bacherfl/keptn-ui-bff:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keptn-demo-ui
+  namespace: keptn-ui
+spec:
+  selector:
+    app: keptn-demo-ui
+  ports:
+    - port: 80
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keptn-ui
+  namespace: keptn-ui
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: keptn-ui-metrics-operator-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: metrics-operator-role
+subjects:
+- kind: ServiceAccount
+  name: keptn-ui
+  namespace: keptn-ui
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: keptn-ui-lifecycle-operator-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: lifecycle-operator-role
+subjects:
+- kind: ServiceAccount
+  name: keptn-ui
+  namespace: keptn-ui
+

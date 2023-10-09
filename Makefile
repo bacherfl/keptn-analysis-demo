@@ -9,6 +9,15 @@ install:
 	make -C ./support/observability install
 	kubectl apply -f ./support/mockserver
 	make -C ./support/argo install
+	kubectl apply -f support/ui/manifest.yaml
+
+.PHONY: port-forward-ui
+port-forward-ui:
+	@echo ""
+	@echo "Open Keptn Demo UI in your Browser: http://localhost:3000"
+	@echo "CTRL-c to stop port-forward"
+	@echo "
+	kubectl port-forward -n keptn-ui svc/keptn-demo-ui 3000
 
 .PHONY: port-forward-jaeger
 port-forward-jaeger:
@@ -44,7 +53,11 @@ deploy-app:
 
 .PHONY: deploy-app-v1
 deploy-app-v1:
-	make -C ./sample-app deploy-version-1
+	helm upgrade -n simple-go --create-namespace --install simple-go ./simple-app/chart
+
+.PHONY: deploy-app-v2
+deploy-app-v2:
+	helm upgrade -n simple-go --create-namespace --install --set serviceVersion=v2 simple-go ./simple-app/chart
 
 .PHONY: argo-install-simple-go
 argo-install-simple-go:

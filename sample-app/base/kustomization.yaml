@@ -1,9 +1,0 @@
-resources:
-  - https://github.com/podtato-head/podtato-head-app/releases/download/v0.3.1/manifest.yaml
-  - app.yaml
-  - app-post-deploy.yaml
-  - analysis.yaml
-  - service-monitor.yaml
-
-patchesStrategicMerge:
-  - manifest.yaml
