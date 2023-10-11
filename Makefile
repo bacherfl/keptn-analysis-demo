@@ -2,7 +2,7 @@
 JAEGER_VERSION ?= v1.49.0
 LFC_NAMESPACE ?= keptn-lifecycle-controller-system
 PODTATO_NAMESPACE ?= simple-go
-GRAFANA_PORT_FORWARD ?= 3000
+GRAFANA_PORT_FORWARD ?= 3001
 
 .PHONY: install
 install:
@@ -16,8 +16,8 @@ port-forward-ui:
 	@echo ""
 	@echo "Open Keptn Demo UI in your Browser: http://localhost:3000"
 	@echo "CTRL-c to stop port-forward"
-	@echo "
-	kubectl port-forward -n keptn-ui svc/keptn-demo-ui 3000
+	@echo ""
+	kubectl port-forward -n keptn-ui svc/keptn-demo-ui 3000:80
 
 .PHONY: port-forward-jaeger
 port-forward-jaeger:
