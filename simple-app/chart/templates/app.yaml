@@ -101,12 +101,56 @@ spec:
     spec:
       containers:
       - image: bacherfl/simple-go-service:{{ .Values.serviceVersion }}
+        imagePullPolicy: Always
         name: simple-go-service
         ports:
         - containerPort: 9000
           name: http
           protocol: TCP
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-go-backend
+  namespace: simple-go
+spec:
+  selector:
+    matchLabels:
+      app: simple-go-backend
+  template:
+    metadata:
+      labels:
+        app: simple-go-backend
+        app.kubernetes.io/name: simple-go-service-backend
+        app.kubernetes.io/part-of: simple-go
+        app.kubernetes.io/version: {{ .Values.backendSeerviceVersion }}
+        keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
+    spec:
+      containers:
+      - image: bacherfl/simple-go-service:{{ .Values.backendSeerviceVersion }}
+        name: simple-go-service
+        magePullPolicy: Always
+        ports:
+        - containerPort: 9000
+          name: http
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/part-of: simple-go
+  name: simple-go-backend
+  namespace: simple-go
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 9000
+    protocol: TCP
+  selector:
+    app: simple-go-backend
+  type: ClusterIP
 ---
 apiVersion: lifecycle.keptn.sh/v1alpha3
 kind: KeptnApp
@@ -148,6 +192,21 @@ spec:
       value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
     - name: TARGET_SERVICE_LABEL
       value: simple-go-service
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
+    name: wait-for-monitoring
+---
+apiVersion: lifecycle.keptn.sh/v1alpha3
+kind: KeptnTaskDefinition
+metadata:
+  name: wait-for-monitoring-backend
+  namespace: simple-go
+spec:
+  container:
+    env:
+    - name: PROMETHEUS_URL
+      value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
+    - name: TARGET_SERVICE_LABEL
+      value: simple-go-service-backend
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
     name: wait-for-monitoring
 ---
