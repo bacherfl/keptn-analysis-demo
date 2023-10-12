@@ -121,7 +121,7 @@ spec:
     metadata:
       labels:
         app: simple-go-backend
-        app.kubernetes.io/name: simple-go-service-backend
+        app.kubernetes.io/name: simple-go-backend
         app.kubernetes.io/part-of: simple-go
         app.kubernetes.io/version: {{ .Values.backendServiceVersion }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
@@ -165,7 +165,7 @@ spec:
   workloads:
   - name: simple-go-service
     version: {{ .Values.serviceVersion }}
-  - name: simple-go-service-backend
+  - name: simple-go-backend
     version: {{ .Values.backendServiceVersion }}
 ---
 apiVersion: lifecycle.keptn.sh/v1alpha3
