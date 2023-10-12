@@ -269,14 +269,15 @@ spec:
   query: 'timeseries from:-10d,usage=avg(dt.host.cpu.usage),default:0.0, bins: 1'
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
-kind: AnalysisValueTemplate
+kind: KeptnMetric
 metadata:
-  name: error-rate
+  name: request-rate
   namespace: simple-go
 spec:
   provider:
     name: my-provider
-  query: {{ printf "rate(http_requests_total{status_code="500", job="{{.workload}}"}[1m]) or on() vector(0)" }}
+  query: 'avg(rate(http_requests_total{namespace="simple-go"}[1m]))'
+  fetchIntervalSeconds: 10
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: KeptnMetricsProvider
@@ -311,4 +312,14 @@ metadata:
 spec:
   provider:
     name: my-provider
-  query: {{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}
+  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
+---
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: error-rate
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "rate(http_requests_total{status_code="500", job="{{.workload}}"}[1m]) or on() vector(0)" }}"
