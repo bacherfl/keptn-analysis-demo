@@ -208,7 +208,7 @@ spec:
     - name: PROMETHEUS_URL
       value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
     - name: TARGET_SERVICE_LABEL
-      value: simple-go-service-backend
+      value: simple-go-backend
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
     name: wait-for-monitoring
 ---
