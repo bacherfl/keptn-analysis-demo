@@ -123,11 +123,11 @@ spec:
         app: simple-go-backend
         app.kubernetes.io/name: simple-go-service-backend
         app.kubernetes.io/part-of: simple-go
-        app.kubernetes.io/version: {{ .Values.backendSeerviceVersion }}
+        app.kubernetes.io/version: {{ .Values.backendServiceVersion }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
     spec:
       containers:
-      - image: bacherfl/simple-go-service:{{ .Values.backendSeerviceVersion }}
+      - image: bacherfl/simple-go-service:{{ .Values.backendServiceVersion }}
         name: simple-go-service
         magePullPolicy: Always
         ports:
@@ -164,6 +164,8 @@ spec:
   workloads:
   - name: simple-go-service
     version: {{ .Values.serviceVersion }}
+  - name: simple-go-service-backend
+    version: {{ .Values.backendServiceVersion }}
 ---
 apiVersion: lifecycle.keptn.sh/v1alpha3
 kind: KeptnTaskDefinition
