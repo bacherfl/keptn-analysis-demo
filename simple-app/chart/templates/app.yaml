@@ -87,7 +87,7 @@ metadata:
   name: simple-go-service
   namespace: simple-go
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: simple-go-service
@@ -159,6 +159,8 @@ metadata:
   name: simple-go
   namespace: simple-go
 spec:
+  preDeploymentTasks:
+  - wait-for-prometheus
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
@@ -202,6 +204,19 @@ spec:
 apiVersion: lifecycle.keptn.sh/v1alpha3
 kind: KeptnTaskDefinition
 metadata:
+  name: wait-for-prometheus
+  namespace: simple-go
+spec:
+  container:
+    env:
+    - name: PROMETHEUS_URL
+      value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
+    name: wait-for-monitoring
+---
+apiVersion: lifecycle.keptn.sh/v1alpha3
+kind: KeptnTaskDefinition
+metadata:
   name: wait-for-monitoring
   namespace: simple-go
 spec:
@@ -211,7 +226,7 @@ spec:
       value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
     - name: TARGET_SERVICE_LABEL
       value: simple-go-service
-    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
     name: wait-for-monitoring
 ---
 apiVersion: lifecycle.keptn.sh/v1alpha3
