@@ -276,8 +276,7 @@ metadata:
 spec:
   provider:
     name: my-provider
-  query: rate(http_requests_total{status_code="500", job="{{.workload}}"}[1m]) or
-    on() vector(0)
+  query: {{ printf "rate(http_requests_total{status_code="500", job="{{.workload}}"}[1m]) or on() vector(0)" }}
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: KeptnMetricsProvider
