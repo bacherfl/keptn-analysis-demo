@@ -103,6 +103,9 @@ spec:
       - image: bacherfl/simple-go-service:{{ .Values.serviceVersion }}
         imagePullPolicy: Always
         name: simple-go-service
+        env:
+        - name: MAX_REQUESTS_PER_SECOND
+          value: 3
         ports:
         - containerPort: 9000
           name: http
@@ -129,7 +132,7 @@ spec:
       containers:
       - image: bacherfl/simple-go-service:{{ .Values.backendServiceVersion }}
         name: simple-go-service
-        magePullPolicy: Always
+        imagePullPolicy: Always
         ports:
         - containerPort: 9000
           name: http
@@ -286,12 +289,12 @@ spec:
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: KeptnMetric
 metadata:
-  name: request-rate
+  name: response-time
   namespace: simple-go
 spec:
   provider:
     name: my-provider
-  query: 'avg(rate(http_requests_total{namespace="simple-go"}[1m]))'
+  query: 'histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='simple-go-service'}[1m]))'
   fetchIntervalSeconds: 10
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
@@ -324,10 +327,10 @@ spec:
         describedObject:
           apiVersion: metrics.keptn.sh/v1alpha3
           kind: KeptnMetric
-          name: request-rate
+          name: response-time
         target:
           type: Value
-          value: "2.0"
+          value: "0.5"
 ---
 {{- end }}
 apiVersion: monitoring.coreos.com/v1
