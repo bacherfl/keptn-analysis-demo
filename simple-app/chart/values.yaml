@@ -1,2 +1,3 @@
 serviceVersion: v2
 backendServiceVersion: v1
+enableHPA: false

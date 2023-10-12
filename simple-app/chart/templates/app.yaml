@@ -303,6 +303,7 @@ spec:
   targetServer: http://prometheus-k8s.monitoring.svc.cluster.local:9090
   type: prometheus
 ---
+{{- if .Values.enableHPA }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -328,6 +329,7 @@ spec:
           type: Value
           value: "2.0"
 ---
+{{- end }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
