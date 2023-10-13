@@ -284,7 +284,7 @@ metadata:
 spec:
   provider:
     name: my-provider
-  query: "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='simple-go-backend'}[1m])))"
+  query: "histogram_quantile(0.8, sum by(le) (rate(http_server_request_latency_seconds_bucket{status_code='200', job='simple-go-backend'}[5m])))"
   fetchIntervalSeconds: 10
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
