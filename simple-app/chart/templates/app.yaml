@@ -277,16 +277,6 @@ spec:
     warningPercentage: 50
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
-kind: AnalysisValueTemplate
-metadata:
-  name: cpu-usage
-  namespace: simple-go
-spec:
-  provider:
-    name: dql-provider
-  query: 'timeseries from:-10d,usage=avg(dt.host.cpu.usage),default:0.0, bins: 1'
----
-apiVersion: metrics.keptn.sh/v1alpha3
 kind: KeptnMetric
 metadata:
   name: response-time
@@ -294,7 +284,7 @@ metadata:
 spec:
   provider:
     name: my-provider
-  query: "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='simple-go-service'}[1m]))"
+  query: "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='simple-go-backend'}[1m]))"
   fetchIntervalSeconds: 10
 ---
 apiVersion: metrics.keptn.sh/v1alpha3
@@ -306,6 +296,25 @@ spec:
   targetServer: http://prometheus-k8s.monitoring.svc.cluster.local:9090
   type: prometheus
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: load-generator-backend
+  name: load-generator-backend
+  namespace: simple-go
+spec:
+  containers:
+  - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:a427aea5af82db75976aa254380c9f3b640a2288f684aef903cd3b75906eb5bd
+    name: load-generator-backend
+    env:
+    - name: URL
+      value: http://simple-go-backend.simple-go:8080
+    - name: WAIT_TIME_BETWEEN_REQUESTS_MS
+      value: "100"
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+--- 
 {{- if .Values.enableHPA }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -316,14 +325,14 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: simple-go-service
+    name: simple-go-backend
   minReplicas: 1
-  maxReplicas: 3
+  maxReplicas: 4
   metrics:
     - type: Object
       object:
         metric:
-          name: request-rate
+          name: response-time
         describedObject:
           apiVersion: metrics.keptn.sh/v1alpha3
           kind: KeptnMetric
