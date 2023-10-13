@@ -311,7 +311,7 @@ spec:
         run: load-generator-backend
     spec:
       containers:
-      - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:676736d66fc2cd7351f8fb88284c8888e25d48911c98a4c8cb54b7d5f35db027
+      - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:eadc56340254b2dc86e2ba9416ee950821acea58683669b72cd570d8e7e33d18
         name: load-generator-backend
         env:
         - name: URL
