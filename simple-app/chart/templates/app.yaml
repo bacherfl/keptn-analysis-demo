@@ -345,7 +345,7 @@ spec:
           name: response-time
         target:
           type: Value
-          value: "0.2"
+          value: "0.3"
 ---
 {{- end }}
 apiVersion: monitoring.coreos.com/v1
