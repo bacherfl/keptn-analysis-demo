@@ -318,6 +318,8 @@ spec:
           value: http://simple-go-backend.simple-go:8080
         - name: WAIT_TIME_BETWEEN_REQUESTS_MS
           value: "20"
+        - name: "INFINITE"
+          value: "true"
 --- 
 {{- if .Values.enableHPA }}
 apiVersion: autoscaling/v2
