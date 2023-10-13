@@ -309,15 +309,15 @@ spec:
     metadata:
       labels:
         run: load-generator-backend
-    containers:
-    - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:a427aea5af82db75976aa254380c9f3b640a2288f684aef903cd3b75906eb5bd
-      name: load-generator-backend
-      env:
-      - name: URL
-        value: http://simple-go-backend.simple-go:8080
-      - name: WAIT_TIME_BETWEEN_REQUESTS_MS
-        value: "20"
-  restartPolicy: Always
+    spec:
+      containers:
+      - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:a427aea5af82db75976aa254380c9f3b640a2288f684aef903cd3b75906eb5bd
+        name: load-generator-backend
+        env:
+        - name: URL
+          value: http://simple-go-backend.simple-go:8080
+        - name: WAIT_TIME_BETWEEN_REQUESTS_MS
+          value: "20"
 --- 
 {{- if .Values.enableHPA }}
 apiVersion: autoscaling/v2
