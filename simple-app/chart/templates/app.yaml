@@ -296,7 +296,7 @@ spec:
   targetServer: http://prometheus-k8s.monitoring.svc.cluster.local:9090
   type: prometheus
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: load-generator-backend
