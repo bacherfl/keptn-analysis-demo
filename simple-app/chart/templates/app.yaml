@@ -304,7 +304,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      run: simple-go-service
+      run: load-generator-backend
   template:
     metadata:
       labels:
