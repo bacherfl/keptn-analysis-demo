@@ -103,9 +103,6 @@ spec:
       - image: bacherfl/simple-go-service:{{ .Values.serviceVersion }}
         imagePullPolicy: Always
         name: simple-go-service
-        env:
-        - name: MAX_REQUESTS_PER_SECOND
-          value: "3"
         ports:
         - containerPort: 9000
           name: http
@@ -133,6 +130,9 @@ spec:
       - image: bacherfl/simple-go-service:{{ .Values.backendServiceVersion }}
         name: simple-go-service
         imagePullPolicy: Always
+        env:
+        - name: MAX_REQUESTS_PER_SECOND
+          value: "3"
         ports:
         - containerPort: 9000
           name: http
