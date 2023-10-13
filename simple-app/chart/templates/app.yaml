@@ -299,15 +299,16 @@ spec:
 apiVersion: v1
 kind: Deployment
 metadata:
-  labels:
-    run: load-generator-backend
   name: load-generator-backend
   namespace: simple-go
 spec:
   selector:
     matchLabels:
-      app: simple-go-service
+      run: simple-go-service
   template:
+    metadata:
+      labels:
+        run: load-generator-backend
     containers:
     - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:a427aea5af82db75976aa254380c9f3b640a2288f684aef903cd3b75906eb5bd
       name: load-generator-backend
