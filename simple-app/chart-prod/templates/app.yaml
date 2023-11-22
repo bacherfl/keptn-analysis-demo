@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   annotations:
     keptn.sh/lifecycle-toolkit: enabled
-  name: simple-go
+  name: simple-go-prod
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -15,7 +15,7 @@ metadata:
     app.kubernetes.io/part-of: kube-prometheus
     app.kubernetes.io/version: 2.39.1
   name: prometheus-k8s
-  namespace: simple-go
+  namespace: simple-go-prod
 rules:
 - apiGroups:
   - ""
@@ -54,7 +54,7 @@ metadata:
     app.kubernetes.io/part-of: kube-prometheus
     app.kubernetes.io/version: 2.39.1
   name: prometheus-k8s
-  namespace: simple-go
+  namespace: simple-go-prod
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -70,7 +70,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: simple-go
   name: simple-go-service
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   ports:
   - name: http
@@ -85,7 +85,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-go-service
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   selector:
     matchLabels:
@@ -117,7 +117,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-go-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   selector:
     matchLabels:
@@ -154,7 +154,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: simple-go
   name: simple-go-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   ports:
   - name: http
@@ -169,7 +169,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnAppContext
 metadata:
   name: simple-go
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   preDeploymentTasks:
   - wait-for-prometheus
@@ -183,7 +183,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -198,7 +198,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -213,7 +213,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-prometheus
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -226,7 +226,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -241,7 +241,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -256,7 +256,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisDefinition
 metadata:
   name: my-analysis-definition
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   objectives:
   - analysisValueTemplateRef:
@@ -286,7 +286,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetric
 metadata:
   name: response-time
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   provider:
     name: my-provider
@@ -297,7 +297,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetricsProvider
 metadata:
   name: my-provider
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   targetServer: http://prometheus-k8s.monitoring.svc.cluster.local:9090
   type: prometheus
@@ -306,7 +306,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: load-generator-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   selector:
     matchLabels:
@@ -332,7 +332,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: simple-go
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -374,7 +374,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisValueTemplate
 metadata:
   name: response-time-p95
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   provider:
     name: my-provider
@@ -384,7 +384,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisValueTemplate
 metadata:
   name: error-rate
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   provider:
     name: my-provider
