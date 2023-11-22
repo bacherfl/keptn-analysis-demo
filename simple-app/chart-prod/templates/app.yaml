@@ -3,16 +3,74 @@ kind: Namespace
 metadata:
   annotations:
     keptn.sh/lifecycle-toolkit: enabled
-  name: simple-go
+  name: simple-go-prod
 ---
-## Application manifests - Consisting of two services/deployments
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
+  namespace: simple-go-prod
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - endpoints
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
+  namespace: simple-go-prod
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-k8s
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: monitoring
+---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app.kubernetes.io/part-of: simple-go
   name: simple-go-service
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   ports:
   - name: http
@@ -27,7 +85,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-go-service
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   selector:
     matchLabels:
@@ -59,7 +117,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: simple-go-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   selector:
     matchLabels:
@@ -96,7 +154,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: simple-go
   name: simple-go-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   ports:
   - name: http
@@ -118,7 +176,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnAppContext
 metadata:
   name: simple-go
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   metadata:
     commit-id: {{ .Values.commitID }}
@@ -138,7 +196,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -153,7 +211,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -168,7 +226,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-prometheus
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -181,7 +239,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -196,7 +254,7 @@ apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   container:
     env:
@@ -217,7 +275,7 @@ apiVersion: metrics.keptn.sh/v1alpha3
 kind: AnalysisDefinition
 metadata:
   name: my-analysis-definition
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   objectives:
   - analysisValueTemplateRef:
@@ -271,7 +329,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetric
 metadata:
   name: response-time
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   provider:
     name: my-provider
@@ -282,7 +340,7 @@ apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetricsProvider
 metadata:
   name: my-provider
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   targetServer: http://prometheus-k8s.monitoring.svc.cluster.local:9090
   type: prometheus
@@ -291,7 +349,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: load-generator-backend
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   selector:
     matchLabels:
@@ -317,7 +375,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: simple-go
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -360,59 +418,19 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  labels:
-    app.kubernetes.io/component: prometheus
-    app.kubernetes.io/instance: k8s
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: kube-prometheus
-    app.kubernetes.io/version: 2.39.1
-  name: prometheus-k8s
-  namespace: simple-go
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - services
-  - endpoints
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
+  name: response-time-p95
+  namespace: simple-go-prod
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  labels:
-    app.kubernetes.io/component: prometheus
-    app.kubernetes.io/instance: k8s
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: kube-prometheus
-    app.kubernetes.io/version: 2.39.1
-  name: prometheus-k8s
-  namespace: simple-go
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: prometheus-k8s
-subjects:
-- kind: ServiceAccount
-  name: prometheus-k8s
-  namespace: monitoring
----
+  name: error-rate
+  namespace: simple-go-prod
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
