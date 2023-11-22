@@ -357,7 +357,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: simple-go
+  name: simple-go-prod
   namespace: monitoring
 spec:
   endpoints:
@@ -365,7 +365,7 @@ spec:
     port: http
   namespaceSelector:
     matchNames:
-    - simple-go
+    - simple-go-prod
   selector:
     matchLabels:
       app.kubernetes.io/part-of: simple-go
