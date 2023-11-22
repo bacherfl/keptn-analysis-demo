@@ -165,8 +165,8 @@ spec:
     app: simple-go-backend
   type: ClusterIP
 ---
-apiVersion: lifecycle.keptn.sh/v1alpha3
-kind: KeptnApp
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnAppContext
 metadata:
   name: simple-go
   namespace: simple-go
@@ -176,14 +176,10 @@ spec:
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
-  version: 0.1.1
-  workloads:
-  - name: simple-go-service
-    version: {{ .Values.serviceVersion }}
-  - name: simple-go-backend
-    version: {{ .Values.backendServiceVersion }}
+  metadata:
+    commitID: {{ .Values.commitID }}
 ---
-apiVersion: lifecycle.keptn.sh/v1alpha3
+apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests
@@ -198,7 +194,7 @@ spec:
     image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
     name: loadtest
 ---
-apiVersion: lifecycle.keptn.sh/v1alpha3
+apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests-backend
@@ -213,7 +209,7 @@ spec:
     image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
     name: loadtest
 ---
-apiVersion: lifecycle.keptn.sh/v1alpha3
+apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-prometheus
@@ -226,7 +222,7 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
     name: wait-for-monitoring
 ---
-apiVersion: lifecycle.keptn.sh/v1alpha3
+apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring
@@ -241,7 +237,7 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
     name: wait-for-monitoring
 ---
-apiVersion: lifecycle.keptn.sh/v1alpha3
+apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring-backend
@@ -256,7 +252,7 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
     name: wait-for-monitoring
 ---
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisDefinition
 metadata:
   name: my-analysis-definition
@@ -374,7 +370,7 @@ spec:
     matchLabels:
       app.kubernetes.io/part-of: simple-go
 ---
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisValueTemplate
 metadata:
   name: response-time-p95
@@ -384,7 +380,7 @@ spec:
     name: my-provider
   query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
 ---
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisValueTemplate
 metadata:
   name: error-rate
