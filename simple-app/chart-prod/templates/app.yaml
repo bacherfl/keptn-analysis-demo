@@ -185,13 +185,10 @@ spec:
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
+  traceParent: {{ .Values.traceParent }}
+  metadata:
+    commitID: {{ .Values.commitID }}
 ---
-
-
-
-
-
-# TaskDefinitions 
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
