@@ -268,7 +268,7 @@ spec:
         secretKeyRef:
           key: SECURE_DATA
           name: github-token
-    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:620cc6d9795245e4a2e0e36af47e90ec30c23b59f05eb578d15a2140b143ce78
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:f2791f6b10a4d9d7539d961668484d0ba37843ddcd2bc15515a7aeee3f2706dd
 
     name: promote
 ---
