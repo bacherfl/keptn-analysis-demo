@@ -180,7 +180,7 @@ spec:
   metadata:
     commitID: {{ .Values.commitID }}
   linkedTraces:
-    - 00-22beb1ab34fe5ad6c9b92bcb19c2fd28-b1ac98520428c1ce-01
+    - 00-d4b5cb473778896e69225c0f2fb55923-aa47b12d3b6a6139-01
 ---
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
