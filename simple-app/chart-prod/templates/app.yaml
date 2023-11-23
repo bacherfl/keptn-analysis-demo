@@ -177,6 +177,8 @@ spec:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
   traceParent: {{ .Values.traceParent }}
+  linkedTraces:
+    - {{ .Values.traceParent }}
   metadata:
     commitID: {{ .Values.commitID }}
 ---
