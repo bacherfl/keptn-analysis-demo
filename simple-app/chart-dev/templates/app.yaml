@@ -181,6 +181,7 @@ spec:
     commitID: {{ .Values.commitID }}
   linkedTraces:
     - 00-d4b5cb473778896e69225c0f2fb55923-aa47b12d3b6a6139-01
+  traceParent: {{ .Values.traceParent }}
 ---
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
