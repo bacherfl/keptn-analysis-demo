@@ -179,6 +179,8 @@ spec:
   - promote
   metadata:
     commitID: {{ .Values.commitID }}
+  linkedTraces:
+    - 00-22beb1ab34fe5ad6c9b92bcb19c2fd28-b1ac98520428c1ce-01
 ---
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
