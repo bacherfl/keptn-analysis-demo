@@ -75,6 +75,15 @@ get-analysis-result:
 undeploy:
 	kubectl delete namespace simple-go
 
+.PHONY: cleanup-apps
+cleanup-apps:
+	kubectl delete keptnapp --all -n simple-go
+	kubectl delete keptnworkload --all -n simple-go
+	kubectl delete deployment --all -n simple-go
+	kubectl delete keptnapp --all -n simple-go-prod
+	kubectl delete keptnworkload --all -n simple-go-prod
+	kubectl delete deployment --all -n simple-go-prod
+
 .PHONY: uninstall
 uninstall: undeploy
 	make -C ../support/observability uninstall

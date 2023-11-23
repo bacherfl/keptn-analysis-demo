@@ -271,9 +271,7 @@ spec:
         secretKeyRef:
           key: SECURE_DATA
           name: github-token
-    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:f2791f6b10a4d9d7539d961668484d0ba37843ddcd2bc15515a7aeee3f2706dd
-
-    name: promote
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:0b4c1989b4475589b4da9bd611fef6dd7567621e3e1ed3e4a30236ce6a9baaad
 ---
 apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisDefinition
