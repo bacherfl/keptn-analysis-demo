@@ -263,6 +263,7 @@ metadata:
   namespace: simple-go
 spec:
   container:
+    name: promote
     env:
     - name: ACTION
       value: promote
