@@ -273,7 +273,7 @@ spec:
       warning:
         lessThan:
           fixedValue: 500m
-    weight: 1
+    weight: 2
   - analysisValueTemplateRef:
       name: error-rate
     keyObjective: true
