@@ -268,11 +268,11 @@ spec:
     keyObjective: false
     target:
       failure:
-        greaterThan:
-          fixedValue: 500m
-      warning:
-        greaterThan:
+        lessThan:
           fixedValue: 300m
+      warning:
+        lessThan:
+          fixedValue: 500m
     weight: 1
   - analysisValueTemplateRef:
       name: error-rate
