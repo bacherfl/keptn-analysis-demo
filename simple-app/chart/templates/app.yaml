@@ -5,65 +5,7 @@ metadata:
     keptn.sh/lifecycle-toolkit: enabled
   name: simple-go
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  labels:
-    app.kubernetes.io/component: prometheus
-    app.kubernetes.io/instance: k8s
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: kube-prometheus
-    app.kubernetes.io/version: 2.39.1
-  name: prometheus-k8s
-  namespace: simple-go
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - services
-  - endpoints
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app.kubernetes.io/component: prometheus
-    app.kubernetes.io/instance: k8s
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: kube-prometheus
-    app.kubernetes.io/version: 2.39.1
-  name: prometheus-k8s
-  namespace: simple-go
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: prometheus-k8s
-subjects:
-- kind: ServiceAccount
-  name: prometheus-k8s
-  namespace: monitoring
----
+## Application manifests - Consisting of two services/deployments
 apiVersion: v1
 kind: Service
 metadata:
@@ -98,8 +40,6 @@ spec:
         app.kubernetes.io/part-of: simple-go
         app.kubernetes.io/version: {{ .Values.serviceVersion }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring
-      annotations:
-        keptn.sh/metadata: "commit-id=abcdefg"
     spec:
       containers:
       - image: bacherfl/simple-go-service:{{ .Values.serviceVersion }}
@@ -132,8 +72,6 @@ spec:
         app.kubernetes.io/part-of: simple-go
         app.kubernetes.io/version: {{ .Values.backendServiceVersion }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
-      annotations:
-        keptn.sh/metadata: "commit-id=abcdefg"
     spec:
       containers:
       - image: bacherfl/simple-go-service:{{ .Values.backendServiceVersion }}
@@ -169,18 +107,33 @@ spec:
     app: simple-go-backend
   type: ClusterIP
 ---
+
+
+
+
+
+
+# KeptnAppContext for defining our pre- and post deployment tasks
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnAppContext
 metadata:
   name: simple-go
   namespace: simple-go
 spec:
+  metadata:
+    commit-id: {{ .Values.commitID }}
   preDeploymentTasks:
   - wait-for-prometheus
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
 ---
+
+
+
+
+
+# TaskDefinitions 
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
@@ -254,6 +207,12 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
     name: wait-for-monitoring
 ---
+
+
+
+
+
+# AnalsysisDefinitions for evaluating our load tests
 apiVersion: metrics.keptn.sh/v1alpha3
 kind: AnalysisDefinition
 metadata:
@@ -284,6 +243,30 @@ spec:
     passPercentage: 60
     warningPercentage: 50
 ---
+
+# AnalysisValueTemplates define the queries for the metrics used in the AnalysisDefinition
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: response-time-p95
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
+---
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: error-rate
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
+---
+
+# KeptnMetric: represents the last known value of the given metric
 apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetric
 metadata:
@@ -356,6 +339,8 @@ spec:
           value: "0.4"
 ---
 {{- end }}
+
+# ServiceMonitor for Prometheus
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -372,22 +357,62 @@ spec:
     matchLabels:
       app.kubernetes.io/part-of: simple-go
 ---
-apiVersion: metrics.keptn.sh/v1alpha3
-kind: AnalysisValueTemplate
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
 metadata:
-  name: response-time-p95
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
   namespace: simple-go
-spec:
-  provider:
-    name: my-provider
-  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - endpoints
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
 ---
-apiVersion: metrics.keptn.sh/v1alpha3
-kind: AnalysisValueTemplate
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
 metadata:
-  name: error-rate
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
   namespace: simple-go
-spec:
-  provider:
-    name: my-provider
-  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-k8s
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: monitoring
+---

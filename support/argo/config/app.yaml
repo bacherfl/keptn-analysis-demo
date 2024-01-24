@@ -9,6 +9,10 @@ spec:
     repoURL: 'https://github.com/bacherfl/keptn-analysis-demo'
     path: simple-app/chart
     targetRevision: HEAD
+    helm:
+      parameters:
+      - name: "commitID"
+        value: "$ARGOCD_APP_REVISION"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: simple-go
