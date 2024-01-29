@@ -5,65 +5,6 @@ metadata:
     keptn.sh/lifecycle-toolkit: enabled
   name: simple-go
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  labels:
-    app.kubernetes.io/component: prometheus
-    app.kubernetes.io/instance: k8s
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: kube-prometheus
-    app.kubernetes.io/version: 2.39.1
-  name: prometheus-k8s
-  namespace: simple-go
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - services
-  - endpoints
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app.kubernetes.io/component: prometheus
-    app.kubernetes.io/instance: k8s
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: kube-prometheus
-    app.kubernetes.io/version: 2.39.1
-  name: prometheus-k8s
-  namespace: simple-go
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: prometheus-k8s
-subjects:
-- kind: ServiceAccount
-  name: prometheus-k8s
-  namespace: monitoring
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -179,9 +120,6 @@ spec:
   - promote
   metadata:
     commitID: {{ .Values.commitID }}
-  linkedTraces:
-    - 00-d4b5cb473778896e69225c0f2fb55923-aa47b12d3b6a6139-01
-  traceParent: {{ .Values.traceParent }}
 ---
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
@@ -411,3 +349,62 @@ spec:
   provider:
     name: my-provider
   query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
+  namespace: simple-go
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - endpoints
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
+  namespace: simple-go
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-k8s
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: monitoring
