@@ -1,5 +1,5 @@
-serviceVersion: v1
+serviceVersion: v2
 backendServiceVersion: v1
 enableHPA: true
 commitID: ""
-traceParent: ""
+traceParent: 00-9604f0cd5803db833a0928fce75d976a-8fc8d7651da585c7-01
