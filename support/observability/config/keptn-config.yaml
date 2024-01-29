@@ -2,7 +2,7 @@ apiVersion: options.keptn.sh/v1alpha1
 kind: KeptnConfig
 metadata:
   name: keptnconfig
-  namespace: keptn-lifecycle-toolkit-system
+  namespace: keptn-system
 spec:
   OTelCollectorUrl: 'otel-collector:4317'
   keptnAppCreationRequestTimeoutSeconds: 30

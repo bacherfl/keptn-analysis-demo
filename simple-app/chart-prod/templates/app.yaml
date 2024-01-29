@@ -176,8 +176,10 @@ spec:
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
+  {{- if .Values.traceParent }}
   spanLinks:
     - {{ .Values.traceParent }}
+  {{- end }}
   metadata:
     commitID: {{ .Values.commitID }}
 ---
