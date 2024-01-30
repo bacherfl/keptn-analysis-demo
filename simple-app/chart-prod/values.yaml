@@ -2,4 +2,4 @@ serviceVersion: v2
 backendServiceVersion: v1
 enableHPA: true
 commitID: ""
-traceParent: 00-9604f0cd5803db833a0928fce75d976a-8fc8d7651da585c7-01
+traceParent: 00-d8e6731a5c02115c45549e7c287f50cb-c0907aaa93a9c94c-01
