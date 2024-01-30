@@ -37,7 +37,7 @@ spec:
         app: simple-go-service
         app.kubernetes.io/name: simple-go-service
         app.kubernetes.io/part-of: simple-go
-        app.kubernetes.io/version: {{ .Values.serviceVersion }}
+        app.kubernetes.io/version: {{ .Values.serviceVersion }}-{{ randAlphaNum 16 }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring
     spec:
       containers:
@@ -69,7 +69,7 @@ spec:
         app: simple-go-backend
         app.kubernetes.io/name: simple-go-backend
         app.kubernetes.io/part-of: simple-go
-        app.kubernetes.io/version: {{ .Values.backendServiceVersion }}
+        app.kubernetes.io/version: {{ .Values.backendServiceVersion }}-{{ randAlphaNum 16 }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
     spec:
       containers:
