@@ -1,8 +1,11 @@
 # renovate: datasource=github-tags depName=jaegertracing/jaeger
 JAEGER_VERSION ?= v1.53.0
-LFC_NAMESPACE ?= keptn-lifecycle-controller-system
+KEPTN_NAMESPACE ?= keptn-system
 PODTATO_NAMESPACE ?= simple-go
 GRAFANA_PORT_FORWARD ?= 3001
+GH_REPO_OWNER ?= bacherfl
+GH_REPO ?= keptn-analysis-demo
+GH_API_TOKEN ?= ""
 
 .PHONY: install
 install:
@@ -87,4 +90,9 @@ cleanup-apps:
 .PHONY: uninstall
 uninstall: undeploy
 	make -C ../support/observability uninstall
+
+.PHONY: create-github-token-secret
+create-github-token-secret:
+	kubectl delete secret -n simple-go github-token --ignore-not-found
+	kubectl create secret generic github-token -n simple-go --from-literal=SECURE_DATA='{"githubRepo":"$(GH_REPO)","githubRepoOwner":"$(GH_REPO_OWNER)","apiToken":"$(GH_API_TOKEN)"}'
 
