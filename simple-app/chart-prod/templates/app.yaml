@@ -95,7 +95,7 @@ spec:
       labels:
         app: simple-go-service
         app.kubernetes.io/name: simple-go-service
-        app.kubernetes.io/part-of: simple-go
+        app.kubernetes.io/part-of: simple-go-prod
         app.kubernetes.io/version: {{ .Values.serviceVersion }}-{{ randAlphaNum 16 }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring
     spec:
@@ -127,7 +127,7 @@ spec:
       labels:
         app: simple-go-backend
         app.kubernetes.io/name: simple-go-backend
-        app.kubernetes.io/part-of: simple-go
+        app.kubernetes.io/part-of: simple-go-prod
         app.kubernetes.io/version: {{ .Values.backendServiceVersion }}-{{ randAlphaNum 16 }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
     spec:
@@ -175,7 +175,7 @@ spec:
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnAppContext
 metadata:
-  name: simple-go
+  name: simple-go-prod
   namespace: simple-go-prod
 spec:
   metadata:
