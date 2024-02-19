@@ -117,6 +117,7 @@ spec:
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
+  promotionTasks:
   - promote
   metadata:
     commitID: {{ .Values.commitID }}
