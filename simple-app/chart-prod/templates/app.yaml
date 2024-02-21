@@ -124,6 +124,7 @@ spec:
       app: simple-go-backend
   template:
     metadata:
+      annotation:
       labels:
         app: simple-go-backend
         app.kubernetes.io/name: simple-go-backend

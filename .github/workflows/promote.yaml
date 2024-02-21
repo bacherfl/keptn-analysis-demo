@@ -38,7 +38,7 @@ jobs:
           TRACE_PARENT: ${{ inputs.traceParent }}
       - run: |
           gh pr create \
-            -B poc/keptn-app-context \
+            -B multi-stage-delivery \
             -H production/${{ github.sha }} \
             --title "Promote dev to production" \
             --body "Automatically created by GHA"
