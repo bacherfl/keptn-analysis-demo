@@ -5,7 +5,6 @@ metadata:
     keptn.sh/lifecycle-toolkit: enabled
   name: simple-go
 ---
-## Application manifests - Consisting of two services/deployments
 apiVersion: v1
 kind: Service
 metadata:
@@ -38,7 +37,7 @@ spec:
         app: simple-go-service
         app.kubernetes.io/name: simple-go-service
         app.kubernetes.io/part-of: simple-go
-        app.kubernetes.io/version: {{ .Values.serviceVersion }}
+        app.kubernetes.io/version: {{ .Values.serviceVersion }}-{{ randAlphaNum 16 }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring
     spec:
       containers:
@@ -70,7 +69,7 @@ spec:
         app: simple-go-backend
         app.kubernetes.io/name: simple-go-backend
         app.kubernetes.io/part-of: simple-go
-        app.kubernetes.io/version: {{ .Values.backendServiceVersion }}
+        app.kubernetes.io/version: {{ .Values.backendServiceVersion }}-{{ randAlphaNum 16 }}
         keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
     spec:
       containers:
@@ -107,33 +106,22 @@ spec:
     app: simple-go-backend
   type: ClusterIP
 ---
-
-
-
-
-
-
-# KeptnAppContext for defining our pre- and post deployment tasks
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnAppContext
 metadata:
   name: simple-go
   namespace: simple-go
 spec:
-  metadata:
-    commit-id: {{ .Values.commitID }}
   preDeploymentTasks:
   - wait-for-prometheus
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
+  promotionTasks:
+  - promote
+  metadata:
+    commitID: {{ .Values.commitID }}
 ---
-
-
-
-
-
-# TaskDefinitions 
 apiVersion: lifecycle.keptn.sh/v1beta1
 kind: KeptnTaskDefinition
 metadata:
@@ -207,13 +195,25 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
     name: wait-for-monitoring
 ---
-
-
-
-
-
-# AnalsysisDefinitions for evaluating our load tests
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnTaskDefinition
+metadata:
+  name: promote
+  namespace: simple-go
+spec:
+  container:
+    name: promote
+    env:
+    - name: ACTION
+      value: promote
+    - name: SECURE_DATA
+      valueFrom:
+        secretKeyRef:
+          key: SECURE_DATA
+          name: github-token
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:0b4c1989b4475589b4da9bd611fef6dd7567621e3e1ed3e4a30236ce6a9baaad
+---
+apiVersion: metrics.keptn.sh/v1beta1
 kind: AnalysisDefinition
 metadata:
   name: my-analysis-definition
@@ -243,30 +243,6 @@ spec:
     passPercentage: 60
     warningPercentage: 50
 ---
-
-# AnalysisValueTemplates define the queries for the metrics used in the AnalysisDefinition
-apiVersion: metrics.keptn.sh/v1alpha3
-kind: AnalysisValueTemplate
-metadata:
-  name: response-time-p95
-  namespace: simple-go
-spec:
-  provider:
-    name: my-provider
-  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
----
-apiVersion: metrics.keptn.sh/v1alpha3
-kind: AnalysisValueTemplate
-metadata:
-  name: error-rate
-  namespace: simple-go
-spec:
-  provider:
-    name: my-provider
-  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
----
-
-# KeptnMetric: represents the last known value of the given metric
 apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetric
 metadata:
@@ -339,8 +315,6 @@ spec:
           value: "0.4"
 ---
 {{- end }}
-
-# ServiceMonitor for Prometheus
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -356,6 +330,26 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/part-of: simple-go
+---
+apiVersion: metrics.keptn.sh/v1beta1
+kind: AnalysisValueTemplate
+metadata:
+  name: response-time-p95
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
+---
+apiVersion: metrics.keptn.sh/v1beta1
+kind: AnalysisValueTemplate
+metadata:
+  name: error-rate
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -415,4 +409,3 @@ subjects:
 - kind: ServiceAccount
   name: prometheus-k8s
   namespace: monitoring
----

@@ -1,0 +1,437 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    keptn.sh/lifecycle-toolkit: enabled
+  name: simple-go-prod
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
+  namespace: simple-go-prod
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - endpoints
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/instance: k8s
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.39.1
+  name: prometheus-k8s
+  namespace: simple-go-prod
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-k8s
+subjects:
+- kind: ServiceAccount
+  name: prometheus-k8s
+  namespace: monitoring
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/part-of: simple-go
+  name: simple-go-service
+  namespace: simple-go-prod
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 9000
+    protocol: TCP
+  selector:
+    app: simple-go-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-go-service
+  namespace: simple-go-prod
+spec:
+  selector:
+    matchLabels:
+      app: simple-go-service
+  template:
+    metadata:
+      labels:
+        app: simple-go-service
+        app.kubernetes.io/name: simple-go-service
+        app.kubernetes.io/part-of: simple-go-prod
+        app.kubernetes.io/version: {{ .Values.serviceVersion }}-{{ randAlphaNum 16 }}
+        keptn.sh/post-deployment-tasks: wait-for-monitoring
+    spec:
+      containers:
+      - image: bacherfl/simple-go-service:{{ .Values.serviceVersion }}
+        imagePullPolicy: Always
+        name: simple-go-service
+        ports:
+        - containerPort: 9000
+          name: http
+          protocol: TCP
+        env:
+        - name: DT_RELEASE_VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app.kubernetes.io/version']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-go-backend
+  namespace: simple-go-prod
+spec:
+  selector:
+    matchLabels:
+      app: simple-go-backend
+  template:
+    metadata:
+      annotation:
+      labels:
+        app: simple-go-backend
+        app.kubernetes.io/name: simple-go-backend
+        app.kubernetes.io/part-of: simple-go-prod
+        app.kubernetes.io/version: {{ .Values.backendServiceVersion }}-{{ randAlphaNum 16 }}
+        keptn.sh/post-deployment-tasks: wait-for-monitoring-backend
+    spec:
+      containers:
+      - image: bacherfl/simple-go-service:{{ .Values.backendServiceVersion }}
+        name: simple-go-service
+        imagePullPolicy: Always
+        env:
+        - name: MAX_REQUESTS_PER_SECOND
+          value: "3"
+        ports:
+        - containerPort: 9000
+          name: http
+          protocol: TCP
+        env:
+        - name: DT_RELEASE_VERSION
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['app.kubernetes.io/version']
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/part-of: simple-go
+  name: simple-go-backend
+  namespace: simple-go-prod
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 9000
+    protocol: TCP
+  selector:
+    app: simple-go-backend
+  type: ClusterIP
+---
+
+
+
+
+
+
+# KeptnAppContext for defining our pre- and post deployment tasks
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnAppContext
+metadata:
+  name: simple-go-prod
+  namespace: simple-go-prod
+spec:
+  metadata:
+    commit-id: {{ .Values.commitID }}
+  preDeploymentTasks:
+  - wait-for-prometheus
+  postDeploymentTasks:
+  - post-deployment-loadtests
+  - post-deployment-loadtests-backend
+  {{- if .Values.traceParent }}
+  spanLinks:
+    - {{ .Values.traceParent }}
+  {{- end }}
+  metadata:
+    commitID: {{ .Values.commitID }}
+---
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnTaskDefinition
+metadata:
+  name: post-deployment-loadtests
+  namespace: simple-go-prod
+spec:
+  container:
+    env:
+    - name: URL
+      value: http://simple-go-service.simple-go:8080
+    - name: WAIT_TIME_BETWEEN_REQUESTS_MS
+      value: "200"
+    image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
+    name: loadtest
+---
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnTaskDefinition
+metadata:
+  name: post-deployment-loadtests-backend
+  namespace: simple-go-prod
+spec:
+  container:
+    env:
+    - name: URL
+      value: http://simple-go-backend.simple-go:8080
+    - name: WAIT_TIME_BETWEEN_REQUESTS_MS
+      value: "200"
+    image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
+    name: loadtest
+---
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnTaskDefinition
+metadata:
+  name: wait-for-prometheus
+  namespace: simple-go-prod
+spec:
+  container:
+    env:
+    - name: PROMETHEUS_URL
+      value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
+    name: wait-for-monitoring
+---
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnTaskDefinition
+metadata:
+  name: wait-for-monitoring
+  namespace: simple-go-prod
+spec:
+  container:
+    env:
+    - name: PROMETHEUS_URL
+      value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
+    - name: TARGET_SERVICE_LABEL
+      value: simple-go-service
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
+    name: wait-for-monitoring
+---
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnTaskDefinition
+metadata:
+  name: wait-for-monitoring-backend
+  namespace: simple-go-prod
+spec:
+  container:
+    env:
+    - name: PROMETHEUS_URL
+      value: http://prometheus-k8s.monitoring.svc.cluster.local:9090/api/v1/targets
+    - name: TARGET_SERVICE_LABEL
+      value: simple-go-backend
+    image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:1fe6078b7046a6efb907ffd1124fefbce9a531d3181c216375879485c22ebaf4
+    name: wait-for-monitoring
+---
+
+
+
+
+
+# AnalsysisDefinitions for evaluating our load tests
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisDefinition
+metadata:
+  name: my-analysis-definition
+  namespace: simple-go-prod
+spec:
+  objectives:
+  - analysisValueTemplateRef:
+      name: response-time-p95
+    keyObjective: false
+    target:
+      failure:
+        greaterThan:
+          fixedValue: 500m
+      warning:
+        greaterThan:
+          fixedValue: 300m
+    weight: 1
+  - analysisValueTemplateRef:
+      name: error-rate
+    keyObjective: true
+    target:
+      failure:
+        greaterThan:
+          fixedValue: 0
+    weight: 1
+  totalScore:
+    passPercentage: 60
+    warningPercentage: 50
+---
+
+# AnalysisValueTemplates define the queries for the metrics used in the AnalysisDefinition
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: response-time-p95
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
+---
+apiVersion: metrics.keptn.sh/v1alpha3
+kind: AnalysisValueTemplate
+metadata:
+  name: error-rate
+  namespace: simple-go
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"
+---
+
+# KeptnMetric: represents the last known value of the given metric
+apiVersion: metrics.keptn.sh/v1beta1
+kind: KeptnMetric
+metadata:
+  name: response-time
+  namespace: simple-go-prod
+spec:
+  provider:
+    name: my-provider
+  query: "histogram_quantile(0.8, sum by(le) (rate(http_server_request_latency_seconds_bucket{status_code='200', job='simple-go-backend'}[5m])))"
+  fetchIntervalSeconds: 10
+---
+apiVersion: metrics.keptn.sh/v1beta1
+kind: KeptnMetricsProvider
+metadata:
+  name: my-provider
+  namespace: simple-go-prod
+spec:
+  targetServer: http://prometheus-k8s.monitoring.svc.cluster.local:9090
+  type: prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator-backend
+  namespace: simple-go-prod
+spec:
+  selector:
+    matchLabels:
+      run: load-generator-backend
+  template:
+    metadata:
+      labels:
+        run: load-generator-backend
+    spec:
+      containers:
+      - image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:eadc56340254b2dc86e2ba9416ee950821acea58683669b72cd570d8e7e33d18
+        name: load-generator-backend
+        env:
+        - name: URL
+          value: http://simple-go-backend.simple-go:8080
+        - name: WAIT_TIME_BETWEEN_REQUESTS_MS
+          value: "20"
+        - name: "INFINITE"
+          value: "true"
+--- 
+{{- if .Values.enableHPA }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: simple-go
+  namespace: simple-go-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: simple-go-backend
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Object
+      object:
+        metric:
+          name: response-time
+        describedObject:
+          apiVersion: metrics.keptn.sh/v1alpha3
+          kind: KeptnMetric
+          name: response-time
+        target:
+          type: Value
+          value: "0.4"
+---
+{{- end }}
+
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: simple-go-prod
+  namespace: monitoring
+spec:
+  endpoints:
+  - interval: 30s
+    port: http
+  namespaceSelector:
+    matchNames:
+    - simple-go-prod
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: simple-go
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: response-time-p95
+  namespace: simple-go-prod
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: error-rate
+  namespace: simple-go-prod
+spec:
+  provider:
+    name: my-provider
+  query: "{{ printf "rate(http_requests_total{status_code='500', job='{{.workload}}'}[1m]) or on() vector(0)" }}"

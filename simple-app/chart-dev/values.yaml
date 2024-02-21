@@ -1,0 +1,4 @@
+serviceVersion: v1
+backendServiceVersion: v2
+enableHPA: true
+commitID: ""

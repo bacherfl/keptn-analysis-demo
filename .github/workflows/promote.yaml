@@ -28,7 +28,7 @@ jobs:
           # promote the change
           cp simple-app/chart-dev/values.yaml simple-app/chart-prod/values.yaml
 
-          echo "traceParent2: $TRACE_PARENT" >> simple-app/chart-prod/values.yaml
+          echo "traceParent: $TRACE_PARENT" >> simple-app/chart-prod/values.yaml
 
           # push the change to the new branch
           git add simple-app/chart-prod/values.yaml
@@ -38,7 +38,7 @@ jobs:
           TRACE_PARENT: ${{ inputs.traceParent }}
       - run: |
           gh pr create \
-            -B poc/keptn-app-context \
+            -B main \
             -H production/${{ github.sha }} \
             --title "Promote dev to production" \
             --body "Automatically created by GHA"

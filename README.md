@@ -2,11 +2,14 @@
 
 ## Synopsis
 
-This Demo highlights the Analysis capabilities of Keptn. The demo includes a sample app containing a simple service (simple-go-service).
+This Demo highlights the Analysis capabilities of Keptn. The demo includes a sample app containing a simple service (simple-go-service),
+which is to be deployed into two different stages (`dev` and `production`).
 During the deployment of the app, several post deployment tasks will be executed:
 
+1. The pre-deployment check of the `Application` will ensure that the monitoring service (Prometheus) is up and running.
 1. The post deployment task of the `Workload` will make sure the prometheus target of the deployed service is available before proceeding with the app post deployment tasks.
 1. The post deployment task of the `Application` will generate some load on the deployed app, to get some monitoring data we can analyse afterwards.
+1. The promotion task of the `Application` in the `dev` stage will create a pull request on this repository to promote the deployed version into the next stage (`production`).
 
 In addition to the app deployment (which can be done either via argo or directly via helm), the demo includes an `AnalysisDefintion` for analysing the `response time` and `error rate` of
 the workload within the application. The analysis can be demonstrated either via the `kubectl` CLI or via the web UI included in this demo.
@@ -16,6 +19,9 @@ the workload within the application. The analysis can be demonstrated either via
 The following prerequisites are required and will not be installed automatically by the setup scripts of this demo:
 
 - **Kubernetes Cluster:** This demo has been tested with Kind (v0.20.0) on a v1.27.3 Kubernetes cluster. 
+- **ArgoCD CLI:** Follow the installation instructions [here](https://argo-cd.readthedocs.io/en/stable/getting_started/)
+- **Github API Token:** To demonstrate the promotion task, you need a GitHub API Token with the permission to read and trigger actions.
+It is recommended to use a fine grained token with access to only this repository.
 
 ## Installation
 
@@ -51,9 +57,30 @@ When selecting that application in the UI, the current state of the deployment w
 Here you will find an overview of how the deployment is coming along.
 The most interesting aspects here are the post deployment tasks for the workload and application.
 
-Argo will also keep observing the upstream repo for any changes in the application configuration.
-For example, the `values.yaml` file in `./simple-app/chart/values.yaml` contains a parameter called `serviceVersion`, which can be set to `v2` to deploy a slow version of the demo service.
+**NOTE:** In the initial deployment, the promotion task running in the `dev` stage will fail, to to the secret containing the GitHub API token not being available in the namespace that has just been created.
+For any further deployments, i.e. after updating the helm value for the service version, you can create the required secret using the following `make` command:
 
+```shell
+make create-github-token-secret GH_API_TOKEN="<insert token here>" GH_REPO_OWNER="<your git user or organization | default=bacherfl>" GH_REPO="<name of the repo used as GitOps upstream | default=keptn-analysis-demo>" 
+```
+
+If you are not using a fork of this repository, you do not need to provide the `GH_REPO_OWNER` and `GH_REPO` parameters.
+
+## Deploying and promoting a new version of the service
+
+Argo will also keep observing the upstream repo for any changes in the application configuration.
+For example, the `values.yaml` file in `./simple-app/chart-dev/values.yaml` contains a parameter called `serviceVersion`, which can be set to the following values:
+
+- `v1` to deploy a normally working version of the demo service.
+- `v2` to deploy a slow version of the demo service.
+
+After making the changes in the chart for the `dev-stage`, the deployment of the updated application will begin,
+and all the pre/post-deployment tasks will be executed again.
+If everything has been successful, the promotion task will create a PR to this repository, in which it will
+update the `serviceVersion` value in the `production`
+helm chart (`./simple-app/chart/prod/values.yaml`) to the same version that has just been deployed into `dev`.
+Merging the PR will then cause ArgoCD to apply those changes in the `simple-go-prod` namespace and deploy the updated
+application.
 Once everything is deployed, it is time to show the Analysis feature.
 
 ## Triggering Analyses
