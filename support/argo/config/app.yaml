@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/bacherfl/keptn-analysis-demo'
     path: simple-app/chart-dev
-    targetRevision: multi-stage-delivery
+    targetRevision: HEAD
     helm:
       parameters:
       - name: "commitID"
@@ -33,7 +33,7 @@ spec:
   source:
     repoURL: 'https://github.com/bacherfl/keptn-analysis-demo'
     path: simple-app/chart-prod
-    targetRevision: multi-stage-delivery
+    targetRevision: HEAD
     helm:
       parameters:
       - name: "commitID"
