@@ -308,7 +308,7 @@ apiVersion: metrics.keptn.sh/v1alpha3
 kind: AnalysisValueTemplate
 metadata:
   name: response-time-p95
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   provider:
     name: my-provider
@@ -318,7 +318,7 @@ apiVersion: metrics.keptn.sh/v1alpha3
 kind: AnalysisValueTemplate
 metadata:
   name: error-rate
-  namespace: simple-go
+  namespace: simple-go-prod
 spec:
   provider:
     name: my-provider
