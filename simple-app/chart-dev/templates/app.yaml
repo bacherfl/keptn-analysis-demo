@@ -117,6 +117,8 @@ spec:
   postDeploymentTasks:
   - post-deployment-loadtests
   - post-deployment-loadtests-backend
+  postDeploymentEvaluations:
+  - response-time
   promotionTasks:
   - promote
   metadata:
@@ -253,6 +255,16 @@ spec:
     name: my-provider
   query: "histogram_quantile(0.8, sum by(le) (rate(http_server_request_latency_seconds_bucket{status_code='200', job='simple-go-backend'}[5m])))"
   fetchIntervalSeconds: 10
+---
+apiVersion: lifecycle.keptn.sh/v1beta1
+kind: KeptnEvaluationDefinition
+metadata:
+  name: response-time
+spec:
+  objectives:
+    - evaluationTarget: "<1m"
+      keptnMetricRef:
+        name: response-time
 ---
 apiVersion: metrics.keptn.sh/v1beta1
 kind: KeptnMetricsProvider
