@@ -1,4 +1,5 @@
 serviceVersion: v2
 backendServiceVersion: v1
 enableHPA: true
+targetResponseRate: "0.01"
 commitID: ""

@@ -262,7 +262,7 @@ metadata:
   name: response-time
 spec:
   objectives:
-    - evaluationTarget: "<0.001"
+    - evaluationTarget: "<{{ Values.targetResponseRate }}"
       keptnMetricRef:
         name: response-time
 ---
