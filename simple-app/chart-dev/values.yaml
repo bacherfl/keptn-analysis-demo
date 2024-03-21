@@ -1,4 +1,4 @@
-serviceVersion: v1
+serviceVersion: v2
 backendServiceVersion: v2
 enableHPA: true
 targetResponseRate: "0.50"
