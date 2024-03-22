@@ -1,7 +1,7 @@
 serviceVersion: v1
-backendServiceVersion: v1
+backendServiceVersion: v2
 enableHPA: true
-targetResponseRate: "1.00"
-#targetResponseRate: "0.01"
+targetResponseRate: "0.50"
+#targetResponseRate: "0.001"
 commitID: ""
-traceParent: 00-748676218d1f87eec298da2e19879970-c8fecbaa0cfe2c01-01
+traceParent: 00-26e6dec0df25c291cc9d70b43ee37cb0-128d6868277941e7-01
