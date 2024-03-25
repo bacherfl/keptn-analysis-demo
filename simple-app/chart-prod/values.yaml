@@ -4,4 +4,4 @@ enableHPA: false
 targetResponseRate: "50"
 #targetResponseRate: "0.001"
 commitID: ""
-traceParent: 00-0771d24e137cc7acc408b4adddcf747f-4c4f2fd8a4af7485-01
+traceParent: 00-a25990cd01775ce35f3d976c59426963-d5e54ed3968bf6a3-01
