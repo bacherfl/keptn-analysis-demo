@@ -50,18 +50,6 @@ port-forward-argo:
 argo-login:
 	argocd admin initial-password -n argocd
 
-.PHONY: deploy-app
-deploy-app:
-	make -C ./sample-app/manifests/app.yaml
-
-.PHONY: deploy-app-v1
-deploy-app-v1:
-	helm upgrade -n simple-go --create-namespace --install simple-go ./simple-app/chart
-
-.PHONY: deploy-app-v2
-deploy-app-v2:
-	helm upgrade -n simple-go --create-namespace --install --set serviceVersion=v2 simple-go ./simple-app/chart
-
 .PHONY: argo-install-simple-go
 argo-install-simple-go:
 	make -C ./support/argo argo-install-simple-go
@@ -95,4 +83,15 @@ uninstall: undeploy
 create-github-token-secret:
 	kubectl delete secret -n simple-go github-token --ignore-not-found
 	kubectl create secret generic github-token -n simple-go --from-literal=SECURE_DATA='{"githubRepo":"$(GH_REPO)","githubRepoOwner":"$(GH_REPO_OWNER)","apiToken":"$(GH_API_TOKEN)"}'
+
+.PHONY: cleanup-keptn-versions
+cleanup-keptn-versions:
+	kubectl -n simple-go delete keptnworkload --all
+	kubectl -n simple-go delete keptnworkloadversion --all
+	kubectl -n simple-go delete keptnapp --all
+	kubectl -n simple-go delete keptnappversion --all
+	kubectl -n simple-go-prod delete keptnworkload --all
+	kubectl -n simple-go-prod delete keptnworkloadversion --all
+	kubectl -n simple-go-prod delete keptnapp --all
+	kubectl -n simple-go-prod delete keptnappversion --all
 

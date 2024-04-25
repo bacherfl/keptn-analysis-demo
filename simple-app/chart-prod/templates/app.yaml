@@ -173,7 +173,7 @@ spec:
 
 
 # KeptnAppContext for defining our pre- and post deployment tasks
-apiVersion: lifecycle.keptn.sh/v1beta1
+apiVersion: lifecycle.keptn.sh/v1
 kind: KeptnAppContext
 metadata:
   name: simple-go-prod
@@ -193,7 +193,7 @@ spec:
   metadata:
     commitID: {{ .Values.commitID }}
 ---
-apiVersion: lifecycle.keptn.sh/v1beta1
+apiVersion: lifecycle.keptn.sh/v1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests
@@ -208,7 +208,7 @@ spec:
     image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
     name: loadtest
 ---
-apiVersion: lifecycle.keptn.sh/v1beta1
+apiVersion: lifecycle.keptn.sh/v1
 kind: KeptnTaskDefinition
 metadata:
   name: post-deployment-loadtests-backend
@@ -223,7 +223,7 @@ spec:
     image: docker.io/bacherfl/load-generator-a9e58517073467f96d2957f7b12fcc26@sha256:18b07e4724238b94d2bcbcaff5e1b053cf7cae15bd41b032ca7b97803ea3487c
     name: loadtest
 ---
-apiVersion: lifecycle.keptn.sh/v1beta1
+apiVersion: lifecycle.keptn.sh/v1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-prometheus
@@ -236,7 +236,7 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
     name: wait-for-monitoring
 ---
-apiVersion: lifecycle.keptn.sh/v1beta1
+apiVersion: lifecycle.keptn.sh/v1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring
@@ -251,7 +251,7 @@ spec:
     image: docker.io/bacherfl/check-prometheus-target-7bdba90d6553e656a9cbbf7338b9bbe9@sha256:690340d2eb6f43c8bb4b04b0ab8780751f352f3b11eea1ae5761c3b708bc90ca
     name: wait-for-monitoring
 ---
-apiVersion: lifecycle.keptn.sh/v1beta1
+apiVersion: lifecycle.keptn.sh/v1
 kind: KeptnTaskDefinition
 metadata:
   name: wait-for-monitoring-backend
@@ -272,7 +272,7 @@ spec:
 
 
 # AnalsysisDefinitions for evaluating our load tests
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: metrics.keptn.sh/v1
 kind: AnalysisDefinition
 metadata:
   name: my-analysis-definition
@@ -304,7 +304,7 @@ spec:
 ---
 
 # AnalysisValueTemplates define the queries for the metrics used in the AnalysisDefinition
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: metrics.keptn.sh/v1
 kind: AnalysisValueTemplate
 metadata:
   name: response-time-p95
@@ -314,7 +314,7 @@ spec:
     name: my-provider
   query: "{{ printf "histogram_quantile(0.95, sum by(le) (rate(http_server_request_latency_seconds_bucket{job='{{.workload}}'}[1m])))" }}"
 ---
-apiVersion: metrics.keptn.sh/v1alpha3
+apiVersion: metrics.keptn.sh/v1
 kind: AnalysisValueTemplate
 metadata:
   name: error-rate
@@ -326,7 +326,7 @@ spec:
 ---
 
 # KeptnMetric: represents the last known value of the given metric
-apiVersion: metrics.keptn.sh/v1beta1
+apiVersion: metrics.keptn.sh/v1
 kind: KeptnMetric
 metadata:
   name: response-time
@@ -337,7 +337,7 @@ spec:
   query: "histogram_quantile(0.8, sum by(le) (rate(http_server_request_latency_seconds_bucket{status_code='200', job='simple-go-backend'}[5m])))"
   fetchIntervalSeconds: 10
 ---
-apiVersion: metrics.keptn.sh/v1beta1
+apiVersion: metrics.keptn.sh/v1
 kind: KeptnMetricsProvider
 metadata:
   name: my-provider
