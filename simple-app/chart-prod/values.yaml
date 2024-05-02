@@ -1,5 +1,5 @@
 serviceVersion: v2
-backendServiceVersion: v1
+backendServiceVersion: v2
 targetResponseRate: "0.50"
 commitID: ""
-traceParent: 00-856e5d349669199e8c22a0b3fc5d0e2b-b085293a280aa794-01
+traceParent: 00-32b376bc35ee501690a9144d7468c74e-66c8eee0379b3324-01
