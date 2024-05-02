@@ -1,4 +1,4 @@
 serviceVersion: v2
-backendServiceVersion: v1
+backendServiceVersion: v2
 targetResponseRate: "0.50"
 commitID: ""
